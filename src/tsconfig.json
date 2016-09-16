@@ -13,5 +13,14 @@
     "typeRoots": [
       "../node_modules/@types"
     ]
+    //vt add
+//    "types": [
+//      "THREE"
+//    ],
+//    "files": [
+//      "typings/index.d.ts",
+//      "typings/globals/three/index.d.ts"
+//    ],
+    //vt end
   }
 }
