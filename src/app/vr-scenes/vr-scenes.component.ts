@@ -1,4 +1,4 @@
-/// <reference path="../../../typings/index.d.ts" />
+// <reference path="../../../typings/index.d.ts" />
 import { Component, OnInit } from '@angular/core';
 // import {RouteConfig, ROUTER_DIRECTIVES, ROUTER_PROVIDERS} from '@angular/router-deprecated';
 import * as _ from 'lodash';
@@ -22,11 +22,6 @@ import {Http} from '@angular/http';
     // VRRuntime,
     VRRenderer,
     VRSceneProvider,
-    // CubeOnPlaneScene,
-    // SphereScene,
-    //VRScene,
-    //VRSceneProvider,
-    // VtDummy, 
     Utils
     ],
   templateUrl: './vr-scenes.component.html',
@@ -34,83 +29,37 @@ import {Http} from '@angular/http';
 })
 export class VrScenesComponent implements OnInit {
 
-  // constructor() { }
-
   ngOnInit() {
   }
 
-  // onCanvasInitClick(input, $event) {
-  //   console.log('vr-scenes: now in onCanvasInitClick ')
-  //   console.log(`first=${_.first([1, 2, 3])}`)
-  //   document.getElementById('scene-view').focus();
-  // }
-  // export class CppScenesApp {
   defaultMeaning: number = 42;
-  // cubeScene : CubeScene
-  //vrRenderer: VRRenderer
-  //vrScene: VRScene
-  // vrRuntime: VRRuntime
   hideSpan1: boolean = false
-  // vtDummy: VtDummy
-  //vrRenderer: VRRenderer
-  // vrScene: VRScene
-  //vRSceneProvider: VRSceneProvider;
   vrScene: VRScene
   cubeOnPlaneScene: CubeOnPlaneScene
   vrRuntime: VRRuntime
 
   model
   flipMovement: boolean
-  //constructor(vrRenderer: VRRenderer, vrScene: VRScene) {
-  // constructor(vrRuntime: VRRuntime, vtDummy: VtDummy,
+
   constructor(
-    // vtDummy: VtDummy,
     private injector: Injector, public vrRenderer: VRRenderer,
               private utils: Utils, private http: Http ) {
 
     console.log('cpp-scenes: now in ctor')
-    // this.cubeScene = new CubeScene()
+    console.log(`lodash.version=${_.VERSION}`)
+    console.log(`head = ${_.head([1,2,3])}`)
 
-    //this.vrRenderer = vrRenderer;
-    //this.vrScene = vrScene;
-    //this.vrRuntime = vrRuntime;
-    // this.vrRuntime = vrRuntime;
-    // get a custom VRScene.  We can't rely on DI because we don't know
-    // certain things until run time (after injection time)
     var width = window.innerWidth;
     var height = window.innerHeight;
-    // this.vrScene.init(width, height, vrRenderer)
-    // this.vrRuntime = new VRRuntime(this.vrRenderer,
-    //   this.vrScene, cubeOnPlaneScene, sphereScene, vtDummy)
-
-    // this.vtDummy = vtDummy
 
     this.model = {
-      // scene:  "cube-on-plane-scene"
-      //scene:  "mirror-scene"
-      //ne:  "torus"
       scene:  "cylinder-projection"
     };
   }
 
-  // This works, but I'm converting to cube-on-plane-scene
-  // onCanvasInitClick(input, $event) {
-  //   console.log('cpp-scenes: now in onCanvasInitClick')
-  //   //this.cubeScene = new CubeScene()
-  //   // Note: we have to init vrScene here, not in ctor because the html DOM
-  //   // structure isn't set up properly until we are here.
-  //   this.vrScene = this.injector.get(VRScene)
-  //
-  //   this.cubeScene.initWebGl()
-  //   this.cubeScene.initScene()
-  //   this.cubeScene.mainLoop();
-  // }
-
   onCanvasInitClick(input, $event) {
     console.log('cpp-scenes: now in onCanvasInitClick ')
     console.log('cpp-scenes: model.scene=' + this.model.scene)
-    // Note: we have to init vrScene here, not in ctor because the html DOM
-    // structure isn't set up properly until we are here.
     //give keyboard focus back to the canvasKeyHandler
     document.getElementById('scene-view').focus();
 
@@ -119,15 +68,8 @@ export class VrScenesComponent implements OnInit {
     switch (this.model.scene)
     {
       case 'cube-on-plane-scene' :
-        // this.cubeOnPlaneScene = new CubeOnPlaneScene(this.vrScene, this.vrRenderer, this.vtDummy)
-        //
-        // this.cubeOnPlaneScene.init(10,10)
-        // this.cubeOnPlaneScene.mainLoop()
         this.vrRuntime = new CubeOnPlaneScene(this.vrScene, this.vrRenderer)
 
-        // this.vrRuntime.init()
-        // this.vrRuntime.mainLoop()
-        // this.flipMovement = false
       break;
       // case 'mirror-scene' :
       //   console.log('now kicking off mirror-scene')
@@ -163,10 +105,6 @@ export class VrScenesComponent implements OnInit {
   }
 
   canvasKeyHandler (event) {
-    // console.log('cpp-scenes.canvasKeyHandler: event.keyCode=' + event.keyCode);
-
-     //this.cubeScene.canvasKeyHandler(event)
-    //  this.cubeOnPlaneScene.canvasKeyHandler(event)
     CameraKeypressEvents.keyHandler(event, this.vrRuntime.vrScene.dolly, this.flipMovement)
   }
 
@@ -174,7 +112,6 @@ export class VrScenesComponent implements OnInit {
   onVRRuntimeInitClick(input, $event) {
       console.log('cpp-scenes: now in onVRRuntimeInitClick')
       this.hideSpan1 = true
-      // this.vrRuntime.init()
   }
 
   meaningOfLife(meaning?: number) {

@@ -1,5 +1,6 @@
 {
   "globalDependencies": {
+    "jasmine": "registry:dt/jasmine#2.2.0+20160621224255",
     "lodash": "registry:dt/lodash#4.14.0+20160830145422",
     "three": "registry:dt/three#0.0.0+20160906062307",
     "three-vrcontrols": "registry:dt/three-vrcontrols#0.0.0+20160317120654",
