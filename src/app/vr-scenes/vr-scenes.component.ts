@@ -1,5 +1,6 @@
 /// <reference path="../../../typings/index.d.ts" />
 import { Component, OnInit } from '@angular/core';
+// import {RouteConfig, ROUTER_DIRECTIVES, ROUTER_PROVIDERS} from '@angular/router-deprecated';
 import * as _ from 'lodash';
 import {CameraKeypressEvents} from '../camera-keypress-events'
 import {VRRenderer} from '../vrrenderer'
@@ -15,6 +16,19 @@ import {Http} from '@angular/http';
 
 @Component({
   selector: 'app-vr-scenes',
+    providers: [
+      // ROUTER_PROVIDERS,
+        //      Http,
+    // VRRuntime,
+    VRRenderer,
+    VRSceneProvider,
+    // CubeOnPlaneScene,
+    // SphereScene,
+    //VRScene,
+    //VRSceneProvider,
+    // VtDummy, 
+    Utils
+    ],
   templateUrl: './vr-scenes.component.html',
   styleUrls: ['./vr-scenes.component.css']
 })

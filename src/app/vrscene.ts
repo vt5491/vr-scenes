@@ -1,4 +1,5 @@
 // <reference path="../../typings/index.d.ts" />
+/// <reference path="../typings/index.d.ts" />
 import {Injectable} from '@angular/core';
 import {Injector} from '@angular/core';
 import {Provider} from '@angular/core';
