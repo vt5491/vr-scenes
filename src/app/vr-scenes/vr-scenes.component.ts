@@ -8,6 +8,7 @@ import {VRScene} from '../vrscene'
 import {VRSceneProvider} from '../vrscene'
 import {Injector} from '@angular/core';
 import {CubeOnPlaneScene} from '../scenes/cube-on-plane-scene/cube-on-plane-scene';
+import {CylinderProjectionComponent} from '../scenes/cylinder-projection/cylinder-projection.component';
 import {Utils} from '../utils'
 import {VRRuntime} from '../vrruntime'
 // import {RouteConfig, ROUTER_DIRECTIVES, ROUTER_PROVIDERS} from '@angular/router';
@@ -43,7 +44,7 @@ export class VrScenesComponent implements OnInit {
 
   constructor(
     private injector: Injector, public vrRenderer: VRRenderer,
-              private utils: Utils, private http: Http ) {
+    private utils: Utils, private http: Http ) {
 
     console.log('cpp-scenes: now in ctor')
     console.log(`lodash.version=${_.VERSION}`)
@@ -69,6 +70,10 @@ export class VrScenesComponent implements OnInit {
     {
       case 'cube-on-plane-scene' :
         this.vrRuntime = new CubeOnPlaneScene(this.vrScene, this.vrRenderer)
+
+      break;
+      case 'cylinder-projection' :
+        this.vrRuntime = new CylinderProjectionComponent(this.vrScene, this.vrRenderer)
 
       break;
       // case 'mirror-scene' :
