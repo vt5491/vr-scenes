@@ -1,24 +1,33 @@
 <p>
-  vr-scenes works!
+  Scenes
 </p>
 <span [hidden]="hideSpan1">
-  <label>Select Scene:<br/>
-  <!--<input type="radio" name="scene" value="cube-on-plane-scene"/>Cube on Plane<br>-->
+  <label>Select Scene:<br/></label>
   <input type="radio" [ngModel]="{checked: model.scene == 'cube-on-plane-scene'}"
     (ngModelChange)="model.scene='cube-on-plane-scene'"
     name="scene"
     value="cube-on-plane-scene"
+    tabindex="1"
     dhecked="checked">Cube on Plane<br/>
   <input type="radio" [ngModel]="{checked: model.scene == 'cylinder-projection'}"
    (ngModelChange)="model.scene='cylinder-projection'"
    name="scene"
    value="cylinder-projection"
+   tabindex="2"
    dhecked="checked">Cylinder Projection<br/>
-  </label>
+  <input type="radio" [ngModel]="{checked: model.scene == 'sandbox'}"
+   (ngModelChange)="model.scene='sandbox'"
+   name="scene"
+   value="sandbox"
+   tabindex="3"
+   >Sandbox<br/>
 </span>
 <p>
-<button (click)="onCanvasInitClick(input, $event)"
+<button (click)="onCanvasInitClick(input, $event)" tabindex="4"
         [disabled]="text === 'Angular2'">3-d canvas</button>
+<br/><br/>
+<button (click)="onSandboxClick(input, $event)" tabindex="4"
+        [disabled]="text === 'sandbox'">sandbox</button>
 <br/>
 <div [hidden]="hideDiv1" class="container" id ="canvas-container">
    <canvas id="scene-view"

@@ -1,4 +1,8 @@
 /// <reference path="../../typings/index.d.ts" />
+//TODO: this class actually has nothing to do with VR.  It simply returns
+// a WebGLRenderer object, which is 3-d but not VR-ized.  All the VR stuff
+// is done in vrScene.  So I either need to add some VR stuff in here, or
+// rename it.
 import {Injectable} from '@angular/core';
 import WebGLRenderer = THREE.WebGLRenderer;
 
@@ -13,6 +17,8 @@ export class VRRenderer {
   init(width: number, height: number) {
     console.log('VRRenderer.init: entered')
     try {
+      //TODO: this is a tight coupling on 'scene-view'. pass it
+      // as a parm instead
       this.canvas = document.getElementById('scene-view');
       console.log('initWebGl: this.canvas=' + this.canvas)
 

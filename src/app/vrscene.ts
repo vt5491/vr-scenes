@@ -35,6 +35,7 @@ export class VRScene {
     this.scene = new THREE.Scene;
 
     this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight);
+    this.camera.name = 'vrscene_camera'
     this.camera.position.set(0, 1.5, 100);
     this.dolly = new THREE.Object3D();
     this.dolly.position.z = 50;

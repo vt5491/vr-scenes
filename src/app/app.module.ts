@@ -5,12 +5,14 @@ import { HttpModule } from '@angular/http';
 
 import { AppComponent } from './app.component';
 import { VrScenesComponent } from './vr-scenes/vr-scenes.component';
+
 // import { CylinderProjectionComponent } from './scenes\cylinder-projection/cylinder-projection.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     VrScenesComponent
+    // , SandboxComponent
     // , CylinderProjectionComponent
   ],
   imports: [

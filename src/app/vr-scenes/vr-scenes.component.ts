@@ -1,6 +1,5 @@
 // <reference path="../../../typings/index.d.ts" />
 import { Component, OnInit } from '@angular/core';
-// import {RouteConfig, ROUTER_DIRECTIVES, ROUTER_PROVIDERS} from '@angular/router-deprecated';
 import * as _ from 'lodash';
 import {CameraKeypressEvents} from '../camera-keypress-events'
 import {VRRenderer} from '../vrrenderer'
@@ -9,18 +8,14 @@ import {VRSceneProvider} from '../vrscene'
 import {Injector} from '@angular/core';
 import {CubeOnPlaneScene} from '../scenes/cube-on-plane-scene/cube-on-plane-scene';
 import {CylinderProjectionComponent} from '../scenes/cylinder-projection/cylinder-projection.component';
+import {SandboxComponent} from '../scenes/sandbox/sandbox.component';
 import {Utils} from '../utils'
 import {VRRuntime} from '../vrruntime'
-// import {RouteConfig, ROUTER_DIRECTIVES, ROUTER_PROVIDERS} from '@angular/router';
-// import {Http, HTTP_PROVIDERS} from '@angular/http';
 import {Http} from '@angular/http';
 
 @Component({
   selector: 'app-vr-scenes',
     providers: [
-      // ROUTER_PROVIDERS,
-        //      Http,
-    // VRRuntime,
     VRRenderer,
     VRSceneProvider,
     Utils
@@ -46,7 +41,7 @@ export class VrScenesComponent implements OnInit {
     private injector: Injector, public vrRenderer: VRRenderer,
     private utils: Utils, private http: Http ) {
 
-    console.log('cpp-scenes: now in ctor')
+    console.log('vr-scenes: now in ctor')
     console.log(`lodash.version=${_.VERSION}`)
     console.log(`head = ${_.head([1,2,3])}`)
 
@@ -58,9 +53,20 @@ export class VrScenesComponent implements OnInit {
     };
   }
 
+  onSandboxClick(input, $event) {
+    console.log('vr-scenes.onSandboxClick: entered')
+
+    this.vrScene = this.injector.get(VRScene)
+    // this.vrRuntime = new SandboxComponent(this.vrScene, this.vrRenderer)
+    var sandbox =  new SandboxComponent(this.vrScene, this.vrRenderer)
+    this.vrRuntime = sandbox
+    // var sandbox = new SandboxComponent(this.injector)
+    this.vrRuntime.init()
+  }
+
   onCanvasInitClick(input, $event) {
-    console.log('cpp-scenes: now in onCanvasInitClick ')
-    console.log('cpp-scenes: model.scene=' + this.model.scene)
+    console.log('vr-scenes: now in onCanvasInitClick ')
+    console.log('vr-scenes: model.scene=' + this.model.scene)
     //give keyboard focus back to the canvasKeyHandler
     document.getElementById('scene-view').focus();
 
@@ -70,37 +76,16 @@ export class VrScenesComponent implements OnInit {
     {
       case 'cube-on-plane-scene' :
         this.vrRuntime = new CubeOnPlaneScene(this.vrScene, this.vrRenderer)
-
       break;
       case 'cylinder-projection' :
         this.vrRuntime = new CylinderProjectionComponent(this.vrScene, this.vrRenderer)
-
       break;
-      // case 'mirror-scene' :
-      //   console.log('now kicking off mirror-scene')
-      //   // var mirrorScene = new MirrorScene(this.vrScene, this.vrRenderer)
-      //   //
-      //   // // mirrorScene.init(10,10)
-      //   // mirrorScene.init()
-      //   // mirrorScene.mainLoop()
-      //   this.vrRuntime = new MirrorScene(this.vrScene, this.vrRenderer)
-
-      //   // this.vrRuntime.init()
-      //   // this.vrRuntime.mainLoop()
-      //   // this.flipMovement = false
-      // break;
-      // case 'torus' :
-      //   console.log('now kicking off torus')
-      //   this.vrRuntime = new Torus(this.vrScene, this.vrRenderer, this.http)
-      //   //this.vrRuntime = new Torus()
-
-      //   // this.vrRuntime.init()
-      //   // this.vrRuntime.mainLoop()
-      //   // this.flipMovement = false
-      // break;
-      // case 'cylinder-projection' :
-      //   this.vrRuntime = new CylinderProjection(this.vrScene, this.vrRenderer)
-      // break;
+      case 'sandbox' :
+        this.vrRuntime = new SandboxComponent(this.vrScene, this.vrRenderer)
+        // sandbox.init()
+        // exit early
+        // return
+      break;
       default :
         console.log('invalid switch selection');
     }
@@ -115,7 +100,7 @@ export class VrScenesComponent implements OnInit {
 
 
   onVRRuntimeInitClick(input, $event) {
-      console.log('cpp-scenes: now in onVRRuntimeInitClick')
+      console.log('vr-scenes: now in onVRRuntimeInitClick')
       this.hideSpan1 = true
   }
 
@@ -124,7 +109,7 @@ export class VrScenesComponent implements OnInit {
   }
 
   onResize(event) {
-    console.log('cpp-scenes.onResize: event=' + event)
+    console.log('vr-scenes.onResize: event=' + event)
     var camera = this.vrRuntime.vrScene.camera;
     var renderer = this.vrRuntime.vrRenderer.renderer
 
