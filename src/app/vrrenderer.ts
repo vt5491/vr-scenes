@@ -5,12 +5,14 @@
 // rename it.
 import {Injectable} from '@angular/core';
 import WebGLRenderer = THREE.WebGLRenderer;
+import {Utils} from './utils';
 
 @Injectable()
 export class VRRenderer {
 
   renderer : WebGLRenderer
   canvas: HTMLElement;
+  guid: String;
 
   constructor() {}
 
@@ -26,10 +28,12 @@ export class VRRenderer {
 
       glParms['antialias'] = true;
       glParms['canvas'] = this.canvas;
+      // glParms['preserveDrawingBuffer']
 
       this.renderer = new THREE.WebGLRenderer(glParms);
       console.log('init: this.renderer=' + this.renderer)
 
+      this.guid = Utils.guidGenerator()
     }
     catch (e) {
       alert('This application needs WebGL enabled! error=' + e);

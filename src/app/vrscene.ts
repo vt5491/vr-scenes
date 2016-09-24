@@ -31,6 +31,7 @@ export class VRScene {
   constructor(width, height, vrRenderer) {
     // shouldn't have to do this, but..
     vrRenderer.init()
+    console.log(`VrScene.ctor: vrRenderer.guid=${vrRenderer.guid}`)
 
     this.scene = new THREE.Scene;
 

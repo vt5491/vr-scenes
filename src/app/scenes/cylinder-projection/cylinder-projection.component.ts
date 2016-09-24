@@ -27,6 +27,10 @@ export class CylinderProjectionComponent implements OnInit {
   bufferSceneCamera : THREE.PerspectiveCamera
   boxMaterial :  THREE.MeshBasicMaterial
   parmsHash : any = { updateTexture: true}
+  webVrManager : any;
+  getImageData : Boolean = true
+  texLoader : THREE.TextureLoader = new THREE.TextureLoader();
+
 
   constructor(public vrScene: VRScene, public vrRenderer: VRRenderer) {
   }
@@ -37,6 +41,20 @@ export class CylinderProjectionComponent implements OnInit {
   init() {
     //  this.vrScene.scene.add( plane ); 
     console.log('cylinder.init: entered')
+
+    // override WebVrManagers render method to accept a target and to call
+    // VREffect with a target
+    // var newRenderMethodFactory = () => {
+    //   return (scene, camera, target) => {
+    //     (<any>this).effect.render(scene, camera, target);
+    //   }
+    // }
+
+    // var newRenderMethod = newRenderMethodFactory()
+    // newRenderMethod.bind(this.vrScene.webVrManager)
+
+    // this.vrScene.webVrManager.render = newRenderMethod
+
     // try hooking webVRManager's 'enterVRMode_' function 
     // var saveFunc = this.vrScene.webVrManager.enterVRMode_
     var saveFunc = this.vrScene.webVrManager.enterVRMode_.bind(this.vrScene.webVrManager)
@@ -92,16 +110,29 @@ export class CylinderProjectionComponent implements OnInit {
     // because the webVRManager (webvr-boilerplate) renderer does not
     // support a 'renderTarget' option
     //vt-x-key swap the next two
+    // this gives dynamic texture, but no split screen
+    this.webGLRenderer = this.vrRenderer.renderer
     // this gives no dynamic texture, but allows for split screen
-    this.webGLRenderer = new THREE.WebGLRenderer()
-    this.webGLRenderer_non_vr = new THREE.WebGLRenderer()
+    // this.webGLRenderer = new THREE.WebGLRenderer() // black object
+    this.webGLRenderer.setRenderTarget(this.bufferTexture)
+    document.body.appendChild(document.createTextNode("WebGlRenderer"))
+    document.body.appendChild( this.webGLRenderer.domElement );
+    // adding this stuff still does not make a vanilla WebGlRenderer behave 
+    // like this.vrRenderer
+    // so it must mean that its the way vrRender is used by main scene?
+    // var glParms = new Object();
+
+    // glParms['antialias'] = true;
+    // glParms['canvas'] = document.getElementById('scene-view');
+
+    this.webGLRenderer_non_vr = new THREE.WebGLRenderer({preserveDrawingBuffer : true})
+    document.body.appendChild(document.createTextNode("WebGlRenderer_non_vr"))
     document.body.appendChild( this.webGLRenderer_non_vr.domElement );
     this.webGLRenderer_non_vr.setRenderTarget(this.bufferTexture)
     var vrEffect_non_vr = new THREE.VREffect(this.webGLRenderer_non_vr)
-    // this gives dynamic texture, but no split screen
-    this.webGLRenderer = this.vrRenderer.renderer
+    console.log(`CylinderProjection.init: vrRenderer.guid=${this.vrRenderer.guid}`)
     // works the same as the prior: dynamic texture, no split screen
-    // this.webGLRender = this.vrScene.webVrManager.vrRenderer.renderer
+    // this.webGLRenderer = this.vrScene.webVrManager.vrRenderer.renderer
     this.webGLRenderer.setSize( window.innerWidth, window.innerHeight );
     // Create a different scene to hold our buffer objects
     this.bufferScene = new THREE.Scene();
@@ -148,85 +179,146 @@ export class CylinderProjectionComponent implements OnInit {
     // var boxMaterial = new THREE.MeshBasicMaterial(<any>{ map: this.bufferTexture });
     this.boxMaterial = new THREE.MeshBasicMaterial();
     this.boxMaterial.map = this.bufferTexture.texture
+    // this.boxMaterial.color = new THREE.Color(250,50,100) 
     // this.boxMaterial.map.needsUpdate = true
     // when I tie boxMaterial to a fixed image, I don't get problems with
     // split-screen mode 
     // this.boxMaterial.map = THREE.ImageUtils.loadTexture("../../assets/images/clouds.jpg")
+    // this.boxMaterial.map = this.texLoader.load("../../assets/images/clouds.jpg")
     // boxMaterial.map = THREE.ImageUtils.loadTexture("assets/images/clouds.jpg")
     // var meshParms = new Object()
     // meshParms['color'] = 0x8080ff;
 
     // var material = new THREE.MeshBasicMaterial(meshParms);
-    // var boxGeometry2 = new THREE.BoxGeometry(5, 5, 5);
-    var boxGeometry2 = new THREE.BoxGeometry(4, 4, 4);
+    var boxGeometry2 = new THREE.BoxGeometry(5, 5, 5);
+    // var boxGeometry2 = new THREE.BoxGeometry(4, 4, 4);
     this.mainBoxObject = new THREE.Mesh(boxGeometry2, this.boxMaterial);
     // this.mainBoxObject = new THREE.Mesh(boxGeometry2, material);
     this.mainBoxObject.position.z = -10;
     // this.mainBoxObject.position.x = -1;
     this.vrScene.scene.add(this.mainBoxObject);
+
+    document.body.appendChild(document.createTextNode("screenshot"))
+    var img = document.createElement('img')
+    img.setAttribute("id", "screenshot")
+    document.body.appendChild(img)
   }
   // from https://gamedevelopment.tutsplus.com/tutorials/quick-tip-how-to-render-to-a-texture-in-threejs--cms-25686
 
 mainLoop () {
-  window.requestAnimationFrame(CylinderProjectionComponent
-    .prototype.mainLoop.bind(this)); 
+  // window.requestAnimationFrame(CylinderProjectionComponent
+  //   .prototype.mainLoop.bind(this)); 
 
   //Make the box rotate on box axises
   this.boxObject.rotation.y += 0.01;
   this.boxObject.rotation.x += 0.01;
   //Rotate the main box too
-  this.mainBoxObject.rotation.y += 0.005;
-  this.mainBoxObject.rotation.x += 0.005;
+  this.mainBoxObject.rotation.y += 0.004;
+  this.mainBoxObject.rotation.x += 0.004;
 
-  console.log(`mainloop: this.updateTexture=${this.parmsHash.updateTexture}`)
+  // console.log(`mainloop: this.updateTexture=${this.parmsHash.updateTexture}`)
   // this.vrScene.vrControls.update()
   //Render onto our off screen texture
   if (this.parmsHash.updateTexture) {
     // renderer.render(bufferScene, camera, bufferTexture);
     // this.vrScene.webVrManager.render(
-    this.webGLRenderer.render(
+    this.webGLRenderer.render(//the best
+    // this.webGLRenderer_non_vr.render(// black, but does split
       // this.webGLRenderer_non_vr.render(
+    // this.vrScene.webVrManager.render( //works, but does require zap to WebVRManager.render
       this.bufferScene,
-      // this.vrScene.camera, 
-      this.bufferSceneCamera,
+      this.vrScene.camera, 
+      // this.bufferSceneCamera,
       this.bufferTexture
       // ,true 
     )
+    // and to its own canvas as well
+    this.webGLRenderer.render(//the best
+    // this.webGLRenderer_non_vr.render(// black, but does split
+      // this.webGLRenderer_non_vr.render(
+    // this.vrScene.webVrManager.render( //works, but does require zap to WebVRManager.render
+      this.bufferScene,
+      this.vrScene.camera 
+      // this.bufferSceneCamera,
+      // this.bufferTexture
+      // ,true 
+    )
+    // override with a fixed texture  
+    this.boxMaterial.map = this.texLoader.load(
+      "../../assets/images/clouds.jpg", (texture) => {
+        this.boxMaterial.map = texture
+        this.vrScene.vrControls.update()
+        this.vrScene.webVrManager.render(this.vrScene.scene, this.vrScene.camera)
+        window.requestAnimationFrame(CylinderProjectionComponent
+          .prototype.mainLoop.bind(this)); 
+      })
+    this.boxMaterial.map.needsUpdate = true
+  }
+  else {
+    // this.vrScene.webVrManager.render(
+    // (<any>this.vrScene.vrEffect).render(
+    this.webGLRenderer_non_vr.render(
+    // this.vrRenderer.renderer.render( // no cube is shown at all
+      this.bufferScene,
+      this.bufferSceneCamera,
+      this.bufferTexture
+    )    
+    // and to our secondary buffer as well
+    this.webGLRenderer_non_vr.render(
+    // this.vrRenderer.renderer.render( // no cube is shown at all
+      this.bufferScene,
+      this.bufferSceneCamera
+      // ,this.bufferTexture
+    )    
+    if (this.getImageData == true) {
+      console.log('now processing screen shot data')
+/*
+      var imgData = this.webGLRenderer_non_vr.domElement.toDataURL("image/jpeg", 1.0);/*
+      // this.getImageData = false;
+      // var img = document.createElement("img");
+      var img : HTMLImageElement = document.getElementById('screenshot') as HTMLImageElement
+      img.src = imgData
+      // document.body.appendChild(document.createTextNode("screenshot"))
+      // document.body.appendChild(img)
+      console.log('done processing screen shot data')
+      // apply the image to this.boxMaterial
+      // this.boxMaterial.map = img 
+      // var map = THREE.ImageUtils.loadTexture( img );
+
+      // var texture = new THREE.Texture( this.webGLRenderer_non_vr.domElement );
+      var texture = new THREE.Texture( img );
+      */
+      // this.boxMaterial.map = texture
+      // this.boxMaterial.map = THREE.ImageUtils.loadTexture("assets/images/clouds.jpg")
+      // this.boxMaterial.map = this.texLoader.load("../../assets/images/clouds.jpg")
+      this.boxMaterial.map = this.texLoader.load(
+        "../../assets/images/clouds.jpg", (texture) => {
+          this.boxMaterial.map = texture
+          this.vrScene.vrControls.update()
+          this.vrScene.webVrManager.render(this.vrScene.scene, this.vrScene.camera)
+          window.requestAnimationFrame(CylinderProjectionComponent
+            .prototype.mainLoop.bind(this)); 
+        })
+    }
+  //  var dataURL = this.webGLRenderer_non_vr.domElement.toDataURL(); 
+  //  console.log(`dataURL=${dataURL}`)
   }
 
   // this.boxMaterial.map.needsUpdate = true
 
-  // this.webGLRenderer_non_vr.render(
-  //   this.bufferScene, 
-  //   this.bufferSceneCamera
-  // )
-  // this.bufferTexture.texture.needsUpdate = true;
-    // this.bufferTexture.texture)
-  // this.vrScene.vrEffect.render(
-  //   this.bufferScene, 
-  //   this.vrScene.camera 
-  //   this.bufferTexture
-  //   )
-    // (<any>this.vrScene.vrEffect).render()
-    // var tmpVrEffect = this.vrScene.vrEffect as any
-    // tmpVrEffect.render(this.bufferScene, this.vrScene.camera, this.bufferTexture)
-
+  /*
   this.vrScene.vrControls.update()
   //Finally, draw to the screen
   // renderer.render(scene, camera);
   this.vrScene.webVrManager.render(this.vrScene.scene, this.vrScene.camera)
-  // this.webGLRender.render(this.vrScene.scene, this.vrScene.camera)
-
+  */
+  // this.webGLRenderer.render(this.vrScene.scene, this.vrScene.camera)
+  // this.webGLRenderer_non_vr.render(this.vrScene.scene, this.vrScene.camera)
+  // setTimeout(function () {
+  //   console.log('now in timeout function')
+  //   window.requestAnimationFrame(CylinderProjectionComponent
+  //     .prototype.mainLoop.bind(this));
+  // }.bind(this), 100);
 }
- 
-// function render() {
-//     requestAnimationFrame( render );
-//     // Render onto our off-screen texture
-//     renderer.render(bufferScene, camera, bufferTexture);
-//     // Finally, draw to the screen
-//     renderer.render( scene, camera );
-// }
- 
-// render(); // Render everything!
 
 }
