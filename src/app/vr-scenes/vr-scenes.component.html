@@ -21,6 +21,12 @@
    value="sandbox"
    tabindex="3"
    >Sandbox<br/>
+  <input type="radio" [ngModel]="{checked: model.scene == 'cyl-proj'}"
+   (ngModelChange)="model.scene='cyl-proj'"
+   name="scene"
+   value="cyl-proj"
+   tabindex="3"
+   >cyl-proj<br/>
 </span>
 <p>
 <button (click)="onCanvasInitClick(input, $event)" tabindex="4"

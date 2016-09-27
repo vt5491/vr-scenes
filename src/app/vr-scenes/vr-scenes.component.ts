@@ -8,7 +8,8 @@ import {VRSceneProvider} from '../vrscene'
 import {Injector} from '@angular/core';
 import {CubeOnPlaneScene} from '../scenes/cube-on-plane-scene/cube-on-plane-scene';
 import {CylinderProjectionComponent} from '../scenes/cylinder-projection/cylinder-projection.component';
-import {SandboxComponent} from '../scenes/sandbox/sandbox.component';
+import {CylProjComponent} from '../scenes/cyl-proj/cyl-proj.component';
+// import {SandboxComponent} from '../scenes/sandbox/sandbox.component';
 import {Utils} from '../utils'
 import {VRRuntime} from '../vrruntime'
 import {Http} from '@angular/http';
@@ -58,8 +59,8 @@ export class VrScenesComponent implements OnInit {
 
     this.vrScene = this.injector.get(VRScene)
     // this.vrRuntime = new SandboxComponent(this.vrScene, this.vrRenderer)
-    var sandbox =  new SandboxComponent(this.vrScene, this.vrRenderer)
-    this.vrRuntime = sandbox
+    // var sandbox =  new SandboxComponent(this.vrScene, this.vrRenderer)
+    // this.vrRuntime = sandbox
     // var sandbox = new SandboxComponent(this.injector)
     this.vrRuntime.init()
   }
@@ -80,11 +81,11 @@ export class VrScenesComponent implements OnInit {
       case 'cylinder-projection' :
         this.vrRuntime = new CylinderProjectionComponent(this.vrScene, this.vrRenderer)
       break;
-      case 'sandbox' :
-        this.vrRuntime = new SandboxComponent(this.vrScene, this.vrRenderer)
-        // sandbox.init()
-        // exit early
-        // return
+      // case 'sandbox' :
+      //   this.vrRuntime = new SandboxComponent(this.vrScene, this.vrRenderer)
+      // break;
+      case 'cyl-proj' :
+        this.vrRuntime = new CylProjComponent(this.vrScene, this.vrRenderer)
       break;
       default :
         console.log('invalid switch selection');
