@@ -28,11 +28,13 @@ export class CylProjComponent implements VRRuntime {
   bufferGamePlaneScene : THREE.Scene
   bufferSceneCamera : THREE.PerspectiveCamera
   boxMaterial :  THREE.MeshBasicMaterial
-  parmsHash : any = { updateTexture: true}
+  cylMaterial :  THREE.MeshBasicMaterial
+  parmsHash : any = { splitMode: false}
   webVrManager : any;
   getImageData : Boolean = true
   texLoader : THREE.TextureLoader = new THREE.TextureLoader();
   gamePlaneCube: THREE.Mesh
+  ship: THREE.Line
 
   constructor(public vrScene: VRScene, public vrRenderer: VRRenderer) {
   }
@@ -41,6 +43,22 @@ export class CylProjComponent implements VRRuntime {
   }
 
   init() {
+    var origFunc = this.vrScene.webVrManager.enterVRMode_.bind(this.vrScene.webVrManager)
+    var newFuncFactory = function () {
+
+      var parmsHashLocal = this.parmsHash
+
+      return () => {
+        console.log(`CylinderProjectionComponent: now hooking enterVRMode_`)
+        parmsHashLocal.splitMode = !parmsHashLocal.splitMode
+        origFunc()
+        console.log(`CylinderProjectionComponent: back from hooking enterVRMode_`)
+      }
+    }.bind(this) 
+
+    var newFunc = newFuncFactory()
+    this.vrScene.webVrManager.enterVRMode_ = newFunc
+
     // this.webGLRenderer = this.vrRenderer.renderer
     // this gives no dynamic texture, but allows for split screen
     this.webGLRenderer = new THREE.WebGLRenderer() // black object
@@ -48,10 +66,11 @@ export class CylProjComponent implements VRRuntime {
     document.body.appendChild(document.createTextNode("WebGlRenderer"))
     document.body.appendChild( this.webGLRenderer.domElement );
 
-    this.webGLRenderer.setSize( window.innerWidth, window.innerHeight );
+    // this.webGLRenderer.setSize( window.innerWidth, window.innerHeight );
     // Create a different scene to hold our buffer objects
     this.bufferScene = new THREE.Scene();
     this.bufferSceneCamera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight);
+    this.bufferSceneCamera.position.set(0, 1.5, 10);
 
     this.bufferTexture = new THREE.WebGLRenderTarget(
       window.innerWidth,
@@ -77,8 +96,22 @@ export class CylProjComponent implements VRRuntime {
     this.boxMaterial.map = this.bufferTexture.texture
 
     this.initGamePlane()
+    this.cylMaterial = new THREE.MeshBasicMaterial()
+    // this.cylMaterial.map = THREE.ImageUtils.loadTexture("../../assets/images/clouds.jpg")
+    // var textureLoader = new THREE.TextureLoader()
 
-    // this is the projection object
+    // this.cylMaterial.map = textureLoader.load("../../assets/images/clouds.jpg")
+    // this.webGLRenderer.render(
+    // this.vrScene.webVrManager.render(
+    this.vrRenderer.renderer.render( //works
+      this.bufferGamePlaneScene,
+      this.bufferSceneCamera,
+      this.bufferGamePlaneTexture
+    )
+
+    this.cylMaterial.map = this.bufferGamePlaneTexture.texture
+
+    //  this is the projection object
     // var boxGeometry2 = new THREE.BoxGeometry(5, 5, 5);
     // // var boxGeometry2 = new THREE.BoxGeometry(4, 4, 4);
     // this.mainBoxObject = new THREE.Mesh(boxGeometry2, this.boxMaterial);
@@ -86,9 +119,10 @@ export class CylProjComponent implements VRRuntime {
     // this.mainBoxObject.position.z = -10;
     // // this.mainBoxObject.position.x = -1;
     // this.vrScene.scene.add(this.mainBoxObject);
-    var projCylGeom = new THREE.CylinderGeometry(3, 3, 16)
+    var projCylGeom = new THREE.CylinderGeometry(3, 3, 12, 50)
     // var projCylMat = new THREE.MeshBasicMaterial({})
-    this.projCyl = new THREE.Mesh(projCylGeom, this.boxMaterial)
+    // this.projCyl = new THREE.Mesh(projCylGeom, this.boxMaterial)
+    this.projCyl = new THREE.Mesh(projCylGeom, this.cylMaterial)
 
     this.projCyl.position.z = -1
     this.projCyl.rotateX(Base.ONE_DEG * 90.0)
@@ -111,18 +145,27 @@ export class CylProjComponent implements VRRuntime {
     var lineMaterial = new THREE.LineBasicMaterial();                                                   
     lineMaterial.color = new THREE.Color(255,0,0);   
 
-    var ship = new THREE.Line(lineGeometry, lineMaterial);
+    this.ship = new THREE.Line(lineGeometry, lineMaterial);
 
-    lineGeometry.vertices.push(new THREE.Vector3(0, 1))
-    lineGeometry.vertices.push(new THREE.Vector3(1, 0.5))
-    lineGeometry.vertices.push(new THREE.Vector3(-1, 0.5))
-    lineGeometry.vertices.push(new THREE.Vector3(0, 1))
+    // lineGeometry.vertices.push(new THREE.Vector3(0, 1))
+    // lineGeometry.vertices.push(new THREE.Vector3(1, -0.5))
+    // lineGeometry.vertices.push(new THREE.Vector3(-1, -0.5))
+    // lineGeometry.vertices.push(new THREE.Vector3(0, 1))
+    lineGeometry.vertices.push(new THREE.Vector3(1, 1))
+    lineGeometry.vertices.push(new THREE.Vector3(1, -1))
+    lineGeometry.vertices.push(new THREE.Vector3(-1, -1))
+    lineGeometry.vertices.push(new THREE.Vector3(-1, 1))
+    lineGeometry.vertices.push(new THREE.Vector3(1, 1))
 
-    this.bufferGamePlaneScene.add(ship)
+    lineGeometry.rotateZ(Base.ONE_DEG * 90)
 
-    var cubeGeom = new THREE.CubeGeometry(50,50,50)
+    this.bufferGamePlaneScene.add(this.ship)
+
+    var cubeGeom = new THREE.CubeGeometry(5,5,5)
     var cubeMat = new THREE.MeshBasicMaterial({color: 0xff00ff})
+    cubeMat.side = THREE.DoubleSide;
     this.gamePlaneCube = new THREE.Mesh(cubeGeom, cubeMat)
+    this.gamePlaneCube.position.x = -3
     this.gamePlaneCube.position.z = -10
 
     this.bufferGamePlaneScene.add(this.gamePlaneCube)
@@ -146,25 +189,63 @@ export class CylProjComponent implements VRRuntime {
     //Rotate the main box too
     // this.mainBoxObject.rotation.y += 0.004;
     // this.mainBoxObject.rotation.x += 0.004;
-    this.webGLRenderer.render(//the best
-    // this.webGLRenderer_non_vr.render(// black, but does split
-      // this.webGLRenderer_non_vr.render(
-    // this.vrScene.webVrManager.render( //works, but does require zap to WebVRManager.render
-      this.bufferScene,
-      // this.vrScene.camera,
+    // this.webGLRenderer.render(//the best
+    // // this.webGLRenderer_non_vr.render(// black, but does split
+    //   // this.webGLRenderer_non_vr.render(
+    // // this.vrScene.webVrManager.render( //works, but does require zap to WebVRManager.render
+    //   this.bufferScene,
+    //   // this.vrScene.camera,
+    //   this.bufferSceneCamera,
+    //   this.bufferTexture
+    //   // ,true
+    // ) 
+
+    var renderer
+
+    if (!this.parmsHash.splitMode) {
+      // renderer = this.vrRenderer.renderer //works
+      renderer = this.vrScene.vrEffect // works
+      // console.log(`renderer=vrrenderer.renderer`)
+    }
+    else {
+      renderer = this.webGLRenderer //splits, but no texture update
+      // just gives blank..renders nothing
+      // renderer = this.vrScene.webVrManager.renderer
+      // renderer = this.vrScene.vrEffect // doesn work at all..crashes browser
+      // console.log(`renderer=webGLRenderer`)
+      // console.log(`renderer=webVRManager.renderer`)
+      // console.log(`renderer=vrEffect`)
+    }
+    // if you don't call this, you can go split-screen
+    // this give rotation pre-split, but shows nothing post split
+    // this.vrRenderer.renderer.render( 
+    // this gives no rotation, but does do post-split 
+    // this.webGLRenderer.render(
+    renderer.render(
+      this.bufferGamePlaneScene,
       this.bufferSceneCamera,
-      this.bufferTexture
-      // ,true
+      this.bufferGamePlaneTexture
     )
 
+    this.bufferGamePlaneTexture.texture.needsUpdate // no effect
+
     this.vrScene.webVrManager.render(
+    // this.vrRenderer.renderer.render(
       this.vrScene.scene,
       this.vrScene.camera
     )
 
 
     this.gamePlaneCube.rotation.y += 0.01
+    this.ship.position.x += 0.01
+    // console.log(`CylProj.mainLoop: ship.position.y=${this.ship.position.y}`)
+    // if (this.ship.position.y > window.innerHeight) {
+    if (this.ship.position.x > 3.0 * Math.PI) {
+      this.ship.position.x = -3.0 * Math.PI 
+    }
+
     this.webGLRenderer.render(
+    // renderer.render(
       this.bufferGamePlaneScene, this.bufferSceneCamera
     )
   }
