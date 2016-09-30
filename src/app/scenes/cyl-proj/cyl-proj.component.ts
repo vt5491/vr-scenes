@@ -245,9 +245,10 @@ export class CylProjComponent implements VRRuntime {
       // console.log(`renderer=vrrenderer.renderer`)
     }
     else {
+      // note: the following now works with the 'gl' fix
       bufferRenderer = this.webGLRenderer //splits, but no texture update
       // just gives blank..renders nothing
-      // renderer = this.vrScene.webVrManager.renderer
+      // bufferRenderer = this.vrScene.webVrManager.renderer
       // renderer = this.vrScene.vrEffect // doesn work at all..crashes browser
       // console.log(`renderer=webGLRenderer`)
       // console.log(`renderer=webVRManager.renderer`)
@@ -272,10 +273,9 @@ export class CylProjComponent implements VRRuntime {
 
     this.buf1.needsUpdate = true; //need this
     // this.bufferGamePlaneTexture.texture = this.buf1
-    this.cylMaterial.map = this.buf1
+    this.cylMaterial.map = this.buf1 //need this
+    // this.bufferGamePlaneTexture.texture.needsUpdate = true //no effect
     // this.cylMaterial.map = this.bufferGamePlaneTexture.texture // not enough
-
-    this.bufferGamePlaneTexture.texture.needsUpdate = true //no effect
 
     this.vrScene.webVrManager.render(
     // this.vrRenderer.renderer.render(
