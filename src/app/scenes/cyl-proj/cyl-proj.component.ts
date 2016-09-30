@@ -35,6 +35,7 @@ export class CylProjComponent implements VRRuntime {
   texLoader : THREE.TextureLoader = new THREE.TextureLoader();
   gamePlaneCube: THREE.Mesh
   ship: THREE.Line
+  buf1 : THREE.DataTexture
 
   constructor(public vrScene: VRScene, public vrRenderer: VRRenderer) {
   }
@@ -61,8 +62,10 @@ export class CylProjComponent implements VRRuntime {
 
     // this.webGLRenderer = this.vrRenderer.renderer
     // this gives no dynamic texture, but allows for split screen
-    this.webGLRenderer = new THREE.WebGLRenderer() // black object
-    this.webGLRenderer.setRenderTarget(this.bufferTexture)
+    this.webGLRenderer = new THREE.WebGLRenderer({antialias: true, }) // black object
+    this.webGLRenderer.setClearColor(0x1313f3, 1.0);
+
+    // this.webGLRenderer.setRenderTarget(this.bufferTexture)
     document.body.appendChild(document.createTextNode("WebGlRenderer"))
     document.body.appendChild( this.webGLRenderer.domElement );
 
@@ -129,6 +132,8 @@ export class CylProjComponent implements VRRuntime {
     this.projCyl.rotateZ(Base.ONE_DEG * 90.0)
     this.vrScene.scene.add(this.projCyl);
 
+    this.buf1 = this.generateDataTexture(window.innerWidth, window.innerHeight, new THREE.Color(0x000000));
+    this.buf1.needsUpdate = true
   }
 
   initGamePlane() {
@@ -178,6 +183,37 @@ export class CylProjComponent implements VRRuntime {
 
     this.bufferGamePlaneScene.add(planeObject)
   }
+ 
+  generateDataTexture(width, height, color) {
+    var size = width * height;
+    var data = new Uint8Array(4 * size);
+
+    var r = Math.floor(color.r * 255);
+    var g = Math.floor(color.g * 255);
+    var b = Math.floor(color.b * 255);
+    //var a = Math.floor( color.a * 255 );
+
+    for (var i = 0; i < size; i++) {
+        if (i == size / 2 + width / 2) {
+            data[i * 4] = 255;
+            data[i * 4 + 1] = g;
+            data[i * 4 + 2] = b;
+            data[i * 4 + 3] = 255;
+        } else {
+            data[i * 4] = r;
+            data[i * 4 + 1] = g;
+            data[i * 4 + 2] = b;
+            data[i * 4 + 3] = 255;
+        }
+    }
+
+    // var texture = new THREE.DataTexture(data, width, height, THREE.RGBAFormat);
+    var texture = new (<any> THREE.DataTexture)(data, width, height, THREE.RGBAFormat)
+    // new THREE.DataTexture()
+    texture.needsUpdate = true;
+
+    return texture;
+} 
 
   mainLoop() {
     window.requestAnimationFrame(CylProjComponent
@@ -200,15 +236,16 @@ export class CylProjComponent implements VRRuntime {
     //   // ,true
     // ) 
 
-    var renderer
+    var bufferRenderer
 
     if (!this.parmsHash.splitMode) {
-      // renderer = this.vrRenderer.renderer //works
-      renderer = this.vrScene.vrEffect // works
+      // bufferRenderer = this.webGLRenderer // draws static image..not updated
+      bufferRenderer = this.vrRenderer.renderer //works
+      // renderer = this.vrScene.vrEffect // works
       // console.log(`renderer=vrrenderer.renderer`)
     }
     else {
-      renderer = this.webGLRenderer //splits, but no texture update
+      bufferRenderer = this.webGLRenderer //splits, but no texture update
       // just gives blank..renders nothing
       // renderer = this.vrScene.webVrManager.renderer
       // renderer = this.vrScene.vrEffect // doesn work at all..crashes browser
@@ -221,13 +258,24 @@ export class CylProjComponent implements VRRuntime {
     // this.vrRenderer.renderer.render( 
     // this gives no rotation, but does do post-split 
     // this.webGLRenderer.render(
-    renderer.render(
+    bufferRenderer.render(
       this.bufferGamePlaneScene,
       this.bufferSceneCamera,
       this.bufferGamePlaneTexture
+      // this.bufferGamePlaneTexture.texture //gens error
     )
+    // read render texture into buffer
+    var gl = bufferRenderer.getContext();
+    gl.readPixels(0, 0,
+      window.innerWidth, window.innerHeight,
+      gl.RGBA, gl.UNSIGNED_BYTE, this.buf1.image.data);
 
-    this.bufferGamePlaneTexture.texture.needsUpdate // no effect
+    this.buf1.needsUpdate = true; //need this
+    // this.bufferGamePlaneTexture.texture = this.buf1
+    this.cylMaterial.map = this.buf1
+    // this.cylMaterial.map = this.bufferGamePlaneTexture.texture // not enough
+
+    this.bufferGamePlaneTexture.texture.needsUpdate = true //no effect
 
     this.vrScene.webVrManager.render(
     // this.vrRenderer.renderer.render(
