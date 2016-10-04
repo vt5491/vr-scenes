@@ -51,12 +51,12 @@ export class VRScene {
     this.webVrManager = new (<any>window).WebVRManager(vrRenderer.renderer, this.vrEffect);
     this.camera.quaternion.copy(this.BaseRotation);
 
-    var geometry = new THREE.BoxGeometry(5, 5, 5);
-    var meshParms = new Object();
-
-    meshParms['color'] = 0xff8000;
-
-    var material = new THREE.MeshBasicMaterial(meshParms);
+    // var geometry = new THREE.BoxGeometry(5, 5, 5);
+    // var meshParms = new Object();
+    //
+    // meshParms['color'] = 0xff8000;
+    //
+    // var material = new THREE.MeshBasicMaterial(meshParms);
 
     vrRenderer.canvas.focus();
   }

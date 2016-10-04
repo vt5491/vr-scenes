@@ -35,7 +35,10 @@ export class CylProjComponent implements VRRuntime {
   texLoader : THREE.TextureLoader = new THREE.TextureLoader();
   gamePlaneCube: THREE.Mesh
   ship: THREE.Line
+  asteroid: THREE.Line
   buf1 : THREE.DataTexture
+  cylHeight = 3
+  cylWidth = 3
 
   constructor(public vrScene: VRScene, public vrRenderer: VRRenderer) {
   }
@@ -85,18 +88,22 @@ export class CylProjComponent implements VRRuntime {
     this.boxObject = new THREE.Mesh(boxGeometry, redMaterial);
     this.boxObject.position.z = -10;
     // We add it to the bufferScene instead of the normal scene.
-    this.bufferScene.add(this.boxObject);
+    // this.bufferScene.add(this.boxObject);
 
     var blueMaterial = new THREE.MeshBasicMaterial({ color: 0x70FF74 })
+    // var blueMaterial = new THREE.MeshBasicMaterial({ color: 0x808080 })
     // blueMaterial.side = THREE.DoubleSide;
     var plane = new THREE.PlaneBufferGeometry(window.innerWidth, window.innerHeight);
     var planeObject = new THREE.Mesh(plane, blueMaterial);
+    // var planeObject = new THREE.Mesh(plane, redMaterial);
     planeObject.position.z = -15;
     //We add it to the bufferScene instead of the normal scene!
-    this.bufferScene.add(planeObject);
+    // split-screen is black if this is not added
+    // this.bufferScene.add(planeObject);
 
-    this.boxMaterial = new THREE.MeshBasicMaterial();
-    this.boxMaterial.map = this.bufferTexture.texture
+    //split-screen won't work if this isn't in here
+    this.boxMaterial = new THREE.MeshBasicMaterial(); 
+    // this.boxMaterial.map = this.bufferTexture.texture
 
     this.initGamePlane()
     this.cylMaterial = new THREE.MeshBasicMaterial()
@@ -106,11 +113,11 @@ export class CylProjComponent implements VRRuntime {
     // this.cylMaterial.map = textureLoader.load("../../assets/images/clouds.jpg")
     // this.webGLRenderer.render(
     // this.vrScene.webVrManager.render(
-    this.vrRenderer.renderer.render( //works
-      this.bufferGamePlaneScene,
-      this.bufferSceneCamera,
-      this.bufferGamePlaneTexture
-    )
+    // this.vrRenderer.renderer.render( //works
+    //   this.bufferGamePlaneScene,
+    //   this.bufferSceneCamera,
+    //   this.bufferGamePlaneTexture
+    // )
 
     this.cylMaterial.map = this.bufferGamePlaneTexture.texture
 
@@ -145,17 +152,29 @@ export class CylProjComponent implements VRRuntime {
       {minFilter: THREE.LinearFilter, magFilter: THREE.NearestFilter} 
     )
 
+    // create the ship
+    var shipGeometry = new THREE.Geometry()
+    var shipMaterial = new THREE.LineBasicMaterial({linewidth: 3})
+    shipMaterial.color = new THREE.Color(80,255,20);   
+
+    this.ship = new THREE.Line(shipGeometry, shipMaterial);
+    this.ship.position.x = 2.0
+
+    shipGeometry.vertices.push(new THREE.Vector3(0, 1))
+    shipGeometry.vertices.push(new THREE.Vector3(1, -1))
+    shipGeometry.vertices.push(new THREE.Vector3(-1, -1))
+    shipGeometry.vertices.push(new THREE.Vector3(0, 1))
+
+    this.bufferGamePlaneScene.add(this.ship)
+
+    // create the asteroid
     var lineGeometry = new THREE.Geometry()
 
-    var lineMaterial = new THREE.LineBasicMaterial();                                                   
+    var lineMaterial = new THREE.LineBasicMaterial({linewidth: 2});                                                   
     lineMaterial.color = new THREE.Color(255,0,0);   
 
-    this.ship = new THREE.Line(lineGeometry, lineMaterial);
+    this.asteroid = new THREE.Line(lineGeometry, lineMaterial);
 
-    // lineGeometry.vertices.push(new THREE.Vector3(0, 1))
-    // lineGeometry.vertices.push(new THREE.Vector3(1, -0.5))
-    // lineGeometry.vertices.push(new THREE.Vector3(-1, -0.5))
-    // lineGeometry.vertices.push(new THREE.Vector3(0, 1))
     lineGeometry.vertices.push(new THREE.Vector3(1, 1))
     lineGeometry.vertices.push(new THREE.Vector3(1, -1))
     lineGeometry.vertices.push(new THREE.Vector3(-1, -1))
@@ -164,7 +183,7 @@ export class CylProjComponent implements VRRuntime {
 
     lineGeometry.rotateZ(Base.ONE_DEG * 90)
 
-    this.bufferGamePlaneScene.add(this.ship)
+    this.bufferGamePlaneScene.add(this.asteroid)
 
     var cubeGeom = new THREE.CubeGeometry(5,5,5)
     var cubeMat = new THREE.MeshBasicMaterial({color: 0xff00ff})
@@ -175,7 +194,8 @@ export class CylProjComponent implements VRRuntime {
 
     this.bufferGamePlaneScene.add(this.gamePlaneCube)
     
-    var blueMaterial = new THREE.MeshBasicMaterial({ color: 0x70FF74 })
+    // var blueMaterial = new THREE.MeshBasicMaterial({ color: 0x70FF74 })
+    var blueMaterial = new THREE.MeshBasicMaterial({ color: 0x7070FF })
     blueMaterial.side = THREE.DoubleSide;
     var plane = new THREE.PlaneBufferGeometry(window.innerWidth, window.innerHeight);
     var planeObject = new THREE.Mesh(plane, blueMaterial);
@@ -188,24 +208,24 @@ export class CylProjComponent implements VRRuntime {
     var size = width * height;
     var data = new Uint8Array(4 * size);
 
-    var r = Math.floor(color.r * 255);
-    var g = Math.floor(color.g * 255);
-    var b = Math.floor(color.b * 255);
-    //var a = Math.floor( color.a * 255 );
+    // var r = Math.floor(color.r * 255);
+    // var g = Math.floor(color.g * 255);
+    // var b = Math.floor(color.b * 255);
+    // //var a = Math.floor( color.a * 255 );
 
-    for (var i = 0; i < size; i++) {
-        if (i == size / 2 + width / 2) {
-            data[i * 4] = 255;
-            data[i * 4 + 1] = g;
-            data[i * 4 + 2] = b;
-            data[i * 4 + 3] = 255;
-        } else {
-            data[i * 4] = r;
-            data[i * 4 + 1] = g;
-            data[i * 4 + 2] = b;
-            data[i * 4 + 3] = 255;
-        }
-    }
+    // for (var i = 0; i < size; i++) {
+    //     if (i == size / 2 + width / 2) {
+    //         data[i * 4] = 255;
+    //         data[i * 4 + 1] = g;
+    //         data[i * 4 + 2] = b;
+    //         data[i * 4 + 3] = 255;
+    //     } else {
+    //         data[i * 4] = r;
+    //         data[i * 4 + 1] = g;
+    //         data[i * 4 + 2] = b;
+    //         data[i * 4 + 3] = 255;
+    //     }
+    // }
 
     // var texture = new THREE.DataTexture(data, width, height, THREE.RGBAFormat);
     var texture = new (<any> THREE.DataTexture)(data, width, height, THREE.RGBAFormat)
@@ -284,12 +304,17 @@ export class CylProjComponent implements VRRuntime {
     )
 
 
-    this.gamePlaneCube.rotation.y += 0.01
-    this.ship.position.x += 0.01
+    // this.gamePlaneCube.rotation.y += 0.01
+    this.asteroid.position.x += 0.01
     // console.log(`CylProj.mainLoop: ship.position.y=${this.ship.position.y}`)
     // if (this.ship.position.y > window.innerHeight) {
-    if (this.ship.position.x > 3.0 * Math.PI) {
-      this.ship.position.x = -3.0 * Math.PI 
+    if (this.asteroid.position.x > 3.0 * Math.PI) {
+      this.asteroid.position.x = -3.0 * Math.PI 
+    }
+
+    this.ship.position.y += 0.02
+    if (this.ship.position.y > this.cylHeight / 1) {
+      this.ship.position.y = -this.cylHeight / 1
     }
 
     this.webGLRenderer.render(
