@@ -9,6 +9,7 @@ import {Injector} from '@angular/core';
 import {CubeOnPlaneScene} from '../scenes/cube-on-plane-scene/cube-on-plane-scene';
 import {CylinderProjectionComponent} from '../scenes/cylinder-projection/cylinder-projection.component';
 import {CylProjComponent} from '../scenes/cyl-proj/cyl-proj.component';
+import {TorusProj} from '../scenes/torus-proj/torus-proj';
 // import {SandboxComponent} from '../scenes/sandbox/sandbox.component';
 import {Utils} from '../utils'
 import {VRRuntime} from '../vrruntime'
@@ -86,6 +87,9 @@ export class VrScenesComponent implements OnInit {
       // break;
       case 'cyl-proj' :
         this.vrRuntime = new CylProjComponent(this.vrScene, this.vrRenderer)
+      break;
+      case 'torus-proj' :
+        this.vrRuntime = new TorusProj(this.vrScene, this.vrRenderer)
       break;
       default :
         console.log('invalid switch selection');

@@ -1,4 +1,4 @@
-/// <reference path="../../typings/index.d.ts" />
+// <reference path="../../typings/index.d.ts" />
 import {Component} from '@angular/core';
 import {Injectable} from '@angular/core';
 import WebGLRenderer = THREE.WebGLRenderer;
@@ -13,6 +13,7 @@ export interface VRRuntime {
   // flag it as an error.
   vrRenderer: VRRenderer;
   vrScene: VRScene;
+  // tmp: THREE.Mesh
 
   init();
   mainLoop();

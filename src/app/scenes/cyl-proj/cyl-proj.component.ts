@@ -141,6 +141,15 @@ export class CylProjComponent implements VRRuntime {
 
     this.buf1 = this.generateDataTexture(window.innerWidth, window.innerHeight, new THREE.Color(0x000000));
     this.buf1.needsUpdate = true
+    
+    // this gets rid of the 'blue background from hell' problem.
+    var refPlaneGeometry = new THREE.PlaneGeometry( 65, 40, 32 );
+    var refPlaneMaterial = new THREE.MeshBasicMaterial( {color: 0xffff00, side: THREE.DoubleSide} );
+    var refPlane = new THREE.Mesh( refPlaneGeometry, refPlaneMaterial );
+    refPlane.rotateX(Base.ONE_DEG * 90.0)
+    // plane.rotateY(Base.ONE_DEG * 90.0)
+    this.vrScene.scene.add( refPlane );
+
   }
 
   initGamePlane() {

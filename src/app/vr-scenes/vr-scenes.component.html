@@ -27,6 +27,12 @@
    value="cyl-proj"
    tabindex="4"
    >cyl-proj<br/>
+  <input type="radio" [ngModel]="{checked: model.scene == 'torus-proj'}"
+   (ngModelChange)="model.scene='torus-proj'"
+   name="scene"
+   value="torus-proj"
+   tabindex="5"
+   >torus-proj<br/>
 </span>
 <p>
 <button (click)="onCanvasInitClick(input, $event)" tabindex="4"
