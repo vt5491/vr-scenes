@@ -100,7 +100,12 @@ export class VrScenesComponent implements OnInit {
   }
 
   canvasKeyHandler (event) {
-    CameraKeypressEvents.keyHandler(event, this.vrRuntime.vrScene.dolly, this.flipMovement)
+    CameraKeypressEvents.keyHandler(
+      event, 
+      this.vrRuntime.vrScene.dolly, 
+      this.flipMovement,
+      this.vrRuntime 
+      )
   }
 
 

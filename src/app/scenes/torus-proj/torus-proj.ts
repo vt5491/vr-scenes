@@ -10,6 +10,7 @@ import {VRRuntime} from '../../vrruntime';
 import {Promise} from 'es6-promise';
 
 export class TorusProj implements VRRuntime{
+  SHIP_MOVE_DELTA: number = 0.1;  
   webGLRenderer: THREE.WebGLRenderer;
   gl_webGLRenderer: any;
   bufferGamePlaneTexture: THREE.WebGLRenderTarget;
@@ -213,6 +214,37 @@ export class TorusProj implements VRRuntime{
 
     return texture;
   };
+  
+  keyHandler(event: KeyboardEvent): boolean {
+    let keyHandled: boolean = false;
+    console.log(`torus-proj.keyHandler: event.keyCode=${event.keyCode} `)   
+    
+    let moveFactor: number = 1.0;
+
+    switch (event.keyCode) {
+      case 'J'.charCodeAt(0):
+        this.ship.translateY(moveFactor * -this.SHIP_MOVE_DELTA);
+        keyHandled = true;
+      break;
+
+      case 'K'.charCodeAt(0):
+        this.ship.translateY(moveFactor * this.SHIP_MOVE_DELTA);
+        keyHandled = true;
+      break;
+
+      case 'H'.charCodeAt(0):
+        this.ship.translateX(moveFactor * -this.SHIP_MOVE_DELTA);
+        keyHandled = true;
+      break;
+
+      case 'L'.charCodeAt(0):
+        this.ship.translateX(moveFactor * this.SHIP_MOVE_DELTA);
+        keyHandled = true;
+      break;
+    };
+
+    return keyHandled;
+  }
 
   mainLoop() {
     // console.log(`TorusProj.mainLoop: entered`);
@@ -229,10 +261,10 @@ export class TorusProj implements VRRuntime{
       this.asteroid.position.x = -3.0 * Math.PI
     }
 
-    this.ship.position.y += 0.01;
-    if (this.ship.position.y > this.cylHeight / 0.5) {
-      this.ship.position.y = -this.cylHeight / 0.5 
-    }
+    // this.ship.position.y += 0.01;
+    // if (this.ship.position.y > this.cylHeight / 0.5) {
+    //   this.ship.position.y = -this.cylHeight / 0.5 
+    // }
 
     this.gamePlaneCube.rotateY(Base.ONE_DEG * 0.5)
 

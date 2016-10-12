@@ -4,6 +4,7 @@ import Object3D = THREE.Object3D;
 import Vector3 = THREE.Vector3;
 import {Base} from './base';
 import Quaternion = THREE.Quaternion;
+import {VRRuntime} from './vrruntime'
 
 
 @Directive({
@@ -26,7 +27,8 @@ export class CameraKeypressEvents {
   static CAMERA_MOVE_DELTA = 1.2;
   static CAMERA_ROT_DELTA = 5;
 
-  static keyHandler (event, dolly: Object3D, flipMovement? : boolean ) {
+  static keyHandler (event: KeyboardEvent, dolly: Object3D, 
+    flipMovement? : boolean, passThroughHandler?: VRRuntime ) {
     // console.log('CameraKeypressEvents.keyHandler: event.keyCode=' + event.keyCode)
     // console.log('CameraKeypressEvents.keyHandler: dolly=' + dolly)
     var moveFactor = 1;
@@ -84,6 +86,11 @@ export class CameraKeypressEvents {
         dolly.quaternion.multiply(tmpQuat);
       break;
     };
+    
+    // and pass through to the passThroughHandler, if any
+    if (passThroughHandler && passThroughHandler.keyHandler) {
+      passThroughHandler.keyHandler(event);
+    }  
   }
 
    onKeypress (event, cubeScene) {

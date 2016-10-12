@@ -17,4 +17,7 @@ export interface VRRuntime {
 
   init();
   mainLoop();
+  // keyHandler is optional.  It returns true if the event was handled,
+  // and false otherwise.
+  keyHandler?(flag: KeyboardEvent) : boolean;
 }
